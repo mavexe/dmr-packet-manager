@@ -117,7 +117,7 @@ download_package() {
         return 0
     fi
     
-    echo "Starting installation of $pkg..."
+    echo "Starting installation of $pkg"
     
     (install_package "$pkg" 2>&1 | progress_bar) &
     install_pid=$!
