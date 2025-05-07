@@ -9,4 +9,4 @@ curl, git
 Run the following command to install:
 
 ```bash
-git clone https://raw.githubusercontent.com/your-username/dmr/main/install.sh | bash
+git clone https://raw.githubusercontent.com/mavexe/dmr-packet-manager.sh | bash
