@@ -73,7 +73,7 @@ progress_bar() {
 install_package() {
     case "$1" in
         python3)
-            echo "Downloading Python from python.org..."
+            echo "python.org"
             if ! curl -L https://www.python.org/ftp/python/3.10.6/Python-3.10.6.tgz | tar -xz; then
                 return 1
             fi
@@ -85,7 +85,7 @@ install_package() {
             rm -rf Python-3.10.6
             ;;
         mc)
-            echo "Downloading Midnight Commander from GitHub..."
+            echo ""
             if ! curl -L https://github.com/MidnightCommander/mc/archive/refs/tags/4.8.28.tar.gz | tar -xz; then
                 return 1
             fi
