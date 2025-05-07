@@ -1,79 +1,75 @@
-#! /bin/bash
+#!/bin/bash
 
 INSTALL_DIR="/usr/local"
 CACHE_DIR="/var/cache/dmr"
 LOG_FILE="/var/log/dmr.log"
 
-VERSION=3.10.6
-SLOT_SYMBOLS={"$" "%" "#" "*")
-SPIN_DELAY=0.2
-RESULT_DELAY=1
-
-#dependency
+SLOT_SYMBOLS=("$" "%" "#" "*")
+SPIN_DELAY=0.1
+RESULT_DELAY=0.5
 
 init_dirs() {
-  sudo mkdir -p "$CACHE_DIR" 2>/dev/null
-  sudo touch "$LOG_FILE" 2>/dev/null
-  sudo chown -R $(whoami) "$CACHE_DIR" 2>/dev/null
-  sudo chmod 666 "LOG_FILE" 2>/dev/null
+    sudo mkdir -p "$CACHE_DIR" 2>/dev/null
+    sudo touch "$LOG_FILE" 2>/dev/null
+    sudo chown -R $(whoami) "$CACHE_DIR" 2>/dev/null
+    sudo chmod 666 "$LOG_FILE" 2>/dev/null
 }
 
 clear_slot_area() {
-  tput cuu 6 2>/dev/null
-  tput ed 2>/dev/null
+    tput cuu 6 2>/dev/null
+    tput ed 2>/dev/null
 }
 
-show_slots () {
-  clear_slot_area
-  printf "\n .-------. .-------. .--------.\n"
-  printf " |       | |       | |       |\n"
-  printf " |   %s    | |   $s   | |   %s   |"
-  printf " |       | |       | |       |\n"
-  printf " '-------' '-------' '-------'\n"
+show_slots() {
+    clear_slot_area
+    printf "\n  .-------. .-------. .-------.\n"
+    printf "  |       | |       | |       |\n"
+    printf "  |   %s   | |   %s   | |   %s   |\n" "$1" "$2" "$3"
+    printf "  |       | |       | |       |\n"
+    printf "  '-------' '-------' '-------'\n"
 }
 
 slot_animation() {
-  local pid=$1
-while kill -0 "$pid" 2>/dev/null; do
-if [ $((RANDOM % 5)) -eq 0]; then
-    symbol="${SLOT_SYMBOLS[$((RANDOM % ${#SLOT_SYMBOLS[@]}))]}"
-    symbols=("$symbol" "$symbol" "$symbol")
-else
-    symbols=(
-          "${SLOT_SYMBOLS[$((RANDOM % ${#SLOT_SYMBOLS[@]}))]}"
-          "${SLOT_SYMBOLS[$((RANDOM % ${#SLOT_SYMBOLS[@]}))]}"
-          "${SLOT_SYMBOLS[$((RANDOM % ${#SLOT_SYMBOLS[@]}))]}"
-          )
-fi
-
-  show_slots = "${symbols[@]}"
-  sleep "$SPIN_DELAY"
-done
-
-show_slots "${symbols[@]}"
-sleep "$RESULT_DELAY"
-clear_slot_area
+    local pid=$1
+    
+    while kill -0 "$pid" 2>/dev/null; do
+        if [ $((RANDOM % 5)) -eq 0 ]; then
+            symbol="${SLOT_SYMBOLS[$((RANDOM % ${#SLOT_SYMBOLS[@]}))]}"
+            symbols=("$symbol" "$symbol" "$symbol")
+        else
+            symbols=(
+                "${SLOT_SYMBOLS[$((RANDOM % ${#SLOT_SYMBOLS[@]}))]}"
+                "${SLOT_SYMBOLS[$((RANDOM % ${#SLOT_SYMBOLS[@]}))]}"
+                "${SLOT_SYMBOLS[$((RANDOM % ${#SLOT_SYMBOLS[@]}))]}"
+            )
+        fi
+        
+        show_slots "${symbols[@]}"
+        sleep "$SPIN_DELAY"
+    done
+    
+    show_slots "${symbols[@]}"
+    sleep "$RESULT_DELAY"
+    clear_slot_area
 }
 
 progress_bar() {
-  local width=30
-  local percent=0;
-
-  while read -r line ; do
-    if [[ $line =~([0-9]+)%]]; then
-        percent=${BASH_REMATCH[1]}
-        filled=$((width * percent / 100))
-        printf "\r["
-        printf "%${filled}s" | tr ' ' '#'
-        printf "%$((width-filled))s" | tr ' ' '-'
-        printf "] %d%%" "$percent"
-    fi
- done
- printf "\n"
+    local width=30
+    local percent=0
+    
+    while read -r line; do
+        if [[ $line =~ ([0-9]+)% ]]; then
+            percent=${BASH_REMATCH[1]}
+            filled=$((width * percent / 100))
+            printf "\r["
+            printf "%${filled}s" | tr ' ' '#'
+            printf "%$((width-filled))s" | tr ' ' '-'
+            printf "] %d%%" "$percent"
+        fi
+    done
+    printf "\n"
 }
 
-
-#DEPRECATED
 install_package() {
     case "$1" in
         python3)
@@ -101,19 +97,6 @@ install_package() {
             cd .. || return 1
             rm -rf mc-4.8.28
             ;;
-        htop)
-            echo "Downloading htop from GitHub..."
-            if ! curl -L https://github.com/htop-dev/htop/archive/refs/tags/3.2.1.tar.gz | tar -xz; then
-                return 1
-            fi
-            cd htop-3.2.1 || return 1
-            ./autogen.sh
-            ./configure --prefix="$INSTALL_DIR"
-            make
-            sudo make install
-            cd .. || return 1
-            rm -rf htop-3.2.1
-            ;;
         *)
             echo "Unknown package: $1"
             return 1
@@ -121,7 +104,6 @@ install_package() {
     esac
 }
 
-#DEPRECATED
 download_package() {
     local pkg="$1"
     
@@ -161,9 +143,8 @@ case "$1" in
         ;;
     list)
         echo "Available packages:"
-        echo "  python3 - Python"
+        echo "  python3 - Python interpreter"
         echo "  mc      - Midnight Commander"
-        echo "  htop    - Process viewer"
         ;;
     *)
         echo "DMR Package Manager"
